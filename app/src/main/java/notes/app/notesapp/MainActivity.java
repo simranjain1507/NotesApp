@@ -1,16 +1,26 @@
 package notes.app.notesapp;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorRes;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +28,16 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.ArrayList;
 
@@ -50,16 +70,45 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
     NotesListAdapter adapter;
     boolean other_fabs_visible;
     SearchView.OnQueryTextListener listener;
+    LocationRequest mLocationRequest;
+    Toolbar toolbar;
+    int[] drawableres = {R.drawable.ic_action_cloud_up, R.drawable.ic_action_search, R.drawable.ic_action_back, R.drawable.ic_action_revert
+            , R.drawable.ic_action_share, R.drawable.ic_action_delete, R.drawable.ic_action_add};
+
+    private void drawableRes(int i, @ColorRes int color) {
+        String title = getResources().getString(R.string.app_name);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), drawableres[i], null);
+        drawable = DrawableCompat.wrap(drawable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            DrawableCompat.setTint(drawable, getColor(color));
+            SpannableString s = new SpannableString(title);
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(color, getTheme())), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            getSupportActionBar().setTitle(s);
+
+        }
+        getSupportActionBar().setHomeAsUpIndicator(drawable);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Utils.onActivityCreateSetTheme(this);
-        setContentView(R.layout.activity_main);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         themeColor = sharedPreferences.getString("theme_list_check", null);
-        //Log.d("THEME SELECED", themeColor);
-        getSupportActionBar().setTitle(Html.fromHtml("<font color='#555555'>" + getResources().getString(R.string.app_name) + "</font>"));
+        Utils.onActivityCreateSetTheme(this);
+        setContentView(R.layout.activity_main);
+
+        for (int i = 0; i < drawableres.length; i++) {
+            if (Integer.parseInt(themeColor) == 4 || Integer.parseInt(themeColor) == 5 || Integer.parseInt(themeColor) == 2 || Integer.parseInt(themeColor) == 3 || Integer.parseInt(themeColor) == 7) {
+                Log.e("DRawavle value", String.valueOf(drawableres[i]));
+                drawableRes(i, R.color.light_icon);
+
+            } else {
+                drawableRes(i, R.color.dark_icon);
+
+            }
+        }
+
 
         rl_rootLayout = (RelativeLayout) findViewById(R.id.activity_main);
         rv_notesList = (RecyclerView) findViewById(R.id.recyclerView);
@@ -68,6 +117,46 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
         rv_notesList.setLayoutManager(new LinearLayoutManager(this));
         tv_empty = (TextView) findViewById(R.id.tvEmpty);
 
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+
+        final GoogleApiClient googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        googleApiClient.disconnect();
+                        Log.i(TAG, "All location settings are satisfied.");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
+
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the result
+                            // in onActivityResult().
+                            status.startResolutionForResult(MainActivity.this, 1000);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.i(TAG, "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
+                        break;
+                }
+            }
+        });
         //search listener from action bar
         listener = new SearchView.OnQueryTextListener() {
             @Override
@@ -226,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -233,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setOnQueryTextListener(listener);
         MenuItem themeItem = menu.findItem(R.id.settingsMenu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override

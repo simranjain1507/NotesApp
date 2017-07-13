@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    tools:context="notes.cloud.kashif.notesapp.MainActivity"
-    >
+    tools:context="notes.cloud.kashif.notesapp.MainActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tvEmpty"
@@ -21,14 +19,13 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="You don't have any notes"
-        android:gravity="center"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/colorAccent"
         android:drawablePadding="10dp"
-        />
+        android:gravity="center"
+        android:text="You don't have any notes"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/colorAccent" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -45,16 +42,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_note"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15sp"
-                android:src="@drawable/ic_action_pencil"
                 android:onClick="addNewNote"
+                android:src="@drawable/ic_action_pencil"
                 app:fabSize="mini" />
 
             <android.support.design.widget.FloatingActionButton
@@ -62,8 +58,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15sp"
-                android:src="@drawable/ic_action_tick"
                 android:onClick="addNewChecklist"
+                android:src="@drawable/ic_action_tick"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -72,8 +68,8 @@
             android:id="@+id/fab_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_add"
             android:onClick="addClick"
+            android:src="@drawable/ic_action_add"
             app:fabSize="normal" />
 
     </LinearLayout>

@@ -55,9 +55,7 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.onActivityCreateSetTheme(this);
-
         setContentView(R.layout.activity_checklist);
-
         rl_rootLayout = (RelativeLayout) findViewById(R.id.root_activity_checklist);
         rv_checklist = (RecyclerView) findViewById(R.id.rv_checklist);
         tv_empty = (TextView) findViewById(R.id.tv_empty);
@@ -104,7 +102,7 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
 
             et_textBox.setText("");
 
-            if(tv_empty.getVisibility()==View.VISIBLE){
+            if (tv_empty.getVisibility() == View.VISIBLE) {
                 tv_empty.setVisibility(View.GONE);
             }
 
@@ -116,8 +114,8 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
     }
 
     @Override
-    public void onPause(){
-        if( save ) {
+    public void onPause() {
+        if (save) {
             saveItems();
         }
         super.onPause();
@@ -136,9 +134,9 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
             }
 
             Gson gson = new Gson();
-            String tojson = gson.toJson( itemsList );
-            Log.d( TAG, "tojson="+tojson );
-            note.setNote( tojson );
+            String tojson = gson.toJson(itemsList);
+            Log.d(TAG, "tojson=" + tojson);
+            note.setNote(tojson);
 
             long id;
 
@@ -158,17 +156,18 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
 
     }
 
-    private void parseItems(String data){
+    private void parseItems(String data) {
 
-        Type type = new TypeToken<List<Checklist>>(){}.getType();
+        Type type = new TypeToken<List<Checklist>>() {
+        }.getType();
         Gson gson = new Gson();
-        itemsList = gson.fromJson( data, type );
+        itemsList = gson.fromJson(data, type);
 
-        if( itemsList!=null && !itemsList.isEmpty()){
+        if (itemsList != null && !itemsList.isEmpty()) {
             tv_empty.setVisibility(View.GONE);
             adapter = new ChecklistAdapter(itemsList, this);
             rv_checklist.setAdapter(adapter);
-        }else {
+        } else {
             tv_empty.setVisibility(View.VISIBLE);
         }
 
@@ -197,7 +196,7 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        switch (id){
+        switch (id) {
 
             case R.id.action_share:
                 shareNote();
@@ -213,22 +212,22 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
         return super.onOptionsItemSelected(item);
     }
 
-    private void shareNote(){
+    private void shareNote() {
 
         String data = et_title.getText().toString() + "\n";
 
-        for( Checklist item : itemsList ){
-            if( !item.isChecked() )
-            data += item.getText() +", ";
+        for (Checklist item : itemsList) {
+            if (!item.isChecked())
+                data += item.getText() + ", ";
         }
 
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/*");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, data );
-        startActivity(Intent.createChooser(sharingIntent,"Share using"));
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
+        startActivity(Intent.createChooser(sharingIntent, "Share using"));
     }
 
-    private void deleteNote(){
+    private void deleteNote() {
 
         new AlertDialog.Builder(this)
                 .setTitle("Delete Note?")
@@ -238,9 +237,9 @@ public class ChecklistActivity extends AppCompatActivity implements Adapter2Home
 
                         save = false;
 
-                        if(isNew){
+                        if (isNew) {
                             finish();
-                        }else {
+                        } else {
                             dbHelper.deleteNote(note.getId());
                             finish();
                         }

@@ -1,6 +1,7 @@
 package notes.app.notesapp.pojo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import notes.app.notesapp.R;
@@ -10,6 +11,7 @@ import notes.app.notesapp.R;
  */
 
 public class Utils {
+    public final static int THEME_TEAL = 7;
     private final static int THEME_DEFAULT = 0;
     private final static int THEME_ORANGE = 1;
     private final static int THEME_PINK = 2;
@@ -17,9 +19,8 @@ public class Utils {
     private final static int THEME_BLUE = 4;
     private final static int THEME_BROWN = 5;
     private final static int THEME_AMBER = 6;
-    private final static int THEME_TEAL = 7;
-
     private static int stheme;
+    public Context context;
 
     public static void changeTotheme(Activity activity, int theme) {
         stheme = theme;
