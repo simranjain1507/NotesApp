@@ -28,8 +28,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationRequest;
-
 import java.util.ArrayList;
 
 import notes.app.notesapp.checklists.ChecklistActivity;
@@ -61,46 +59,17 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
     NotesListAdapter adapter;
     boolean other_fabs_visible;
     SearchView.OnQueryTextListener listener;
-    LocationRequest mLocationRequest;
     Toolbar toolbar;
-    int[] drawableres = {R.drawable.ic_action_cloud_up, R.drawable.ic_action_search, R.drawable.ic_action_back, R.drawable.ic_action_revert
+    int[] icons = {R.drawable.ic_action_cloud_up, R.drawable.ic_action_search, R.drawable.ic_action_back, R.drawable.ic_action_revert
             , R.drawable.ic_action_share, R.drawable.ic_action_delete, R.drawable.ic_action_add};
 
-    private void drawableRes(int i, @ColorRes int color) {
-        String title = getResources().getString(R.string.app_name);
-        Drawable drawable = ResourcesCompat.getDrawable(getResources(), drawableres[i], null);
-        drawable = DrawableCompat.wrap(drawable);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            DrawableCompat.setTint(drawable, getColor(color));
-            SpannableString s = new SpannableString(title);
-            s.setSpan(new ForegroundColorSpan(getResources().getColor(color, getTheme())), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            getSupportActionBar().setTitle(s);
-
-        }
-        getSupportActionBar().setHomeAsUpIndicator(drawable);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        themeColor = sharedPreferences.getString("theme_list_check", null);
         Utils.onActivityCreateSetTheme(this);
         setContentView(R.layout.activity_main);
-
-        for (int i = 0; i < drawableres.length; i++) {
-            if (Integer.parseInt(themeColor) == 4 || Integer.parseInt(themeColor) == 5 || Integer.parseInt(themeColor) == 2 || Integer.parseInt(themeColor) == 3 || Integer.parseInt(themeColor) == 7) {
-                Log.e("DRawavle value", String.valueOf(drawableres[i]));
-                drawableRes(i, R.color.light_icon);
-
-            } else {
-                drawableRes(i, R.color.dark_icon);
-
-            }
-        }
-
-
+        setIconColors();
         rl_rootLayout = (RelativeLayout) findViewById(R.id.activity_main);
         rv_notesList = (RecyclerView) findViewById(R.id.recyclerView);
         rv_notesList.addItemDecoration(new SimpleDividerItemDecoration(this));
@@ -129,16 +98,38 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
 
     }
 
+    private void setIconColors() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        themeColor = sharedPreferences.getString("theme_list_check", null);
+        for (int i = 0; i < icons.length; i++) {
+            if (Integer.parseInt(themeColor) == 4 || Integer.parseInt(themeColor) == 5 || Integer.parseInt(themeColor) == 2 || Integer.parseInt(themeColor) == 3 || Integer.parseInt(themeColor) == 7) {
+                setColor(i, R.color.light_icon);
+            } else {
+                setColor(i, R.color.dark_icon);
+            }
+
+        }
+    }
+    private void setColor(int i, @ColorRes int color) {
+        String title = getResources().getString(R.string.app_name);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), icons[i], null);
+        drawable = DrawableCompat.wrap(drawable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            DrawableCompat.setTint(drawable, getColor(color));
+            SpannableString s = new SpannableString(title);
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(color, getTheme())), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            getSupportActionBar().setTitle(s);
+        }
+        getSupportActionBar().setHomeAsUpIndicator(drawable);
+    }
     @Override
     public void onResume() {
         SharedPreferences themePref = PreferenceManager.getDefaultSharedPreferences(this);
         String prefList = themePref.getString("theme_list_check", null);
-
         if (themeColor != null && prefList != null && !themeColor.equals(prefList)) {
             Log.d("THEME Selected", prefList);
             Utils.changeTotheme(this, Integer.parseInt(prefList));
         }
-
         super.onResume();
         clearRecycler();
         //get notes saved in sqlite db
@@ -292,6 +283,5 @@ public class MainActivity extends AppCompatActivity implements Adapter2Home {
 
         return super.onOptionsItemSelected(item);
     }
-
 
 }
